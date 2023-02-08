@@ -1,0 +1,10 @@
+---
+# tasks file for Jenkins
+- name: Installing Java
+  include_tasks: installJava.yaml
+
+- name: Installing Jenkins
+  include_tasks: InstallJenkins.yaml
+
+- name: Install Jenkins plugins
+  include_tasks: InstallJenkinsPlugins.yaml

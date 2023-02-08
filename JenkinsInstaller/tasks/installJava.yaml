@@ -1,0 +1,10 @@
+- name: "check if java present"
+  shell:
+    cmd: "java -version"
+  register: javaversion
+  failed_when: false
+- name: "install java if not present"
+  apt: 
+    name: openjdk-11-jre
+    state: present
+  when: javaversion.rc == 127

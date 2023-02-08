@@ -1,0 +1,8 @@
+- name: Use role to install jenkins
+  hosts: all
+  become: true
+  gather_facts: no
+  no_log: true
+
+  roles:
+    - role: JenkinsInstaller

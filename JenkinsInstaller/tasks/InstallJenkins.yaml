@@ -1,0 +1,38 @@
+- name: "check if java installed properly"
+  shell:
+    cmd: "java -version"
+  register: javaversion
+- fail:
+      msg: "Java should have been installed by now"
+  when: javaversion.rc == 127
+- name: "Get GPG key from the Jenkins portal"
+  get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    dest: /usr/share/keyrings/jenkins.io.key
+- name: "Delete existing key"
+  become: true
+  shell: "rm -rf /usr/share/keyrings/jenkins.gpg"
+- name: "De-arm the keys"
+  become: true
+  shell: "gpg --dearmor -o /usr/share/keyrings/jenkins.gpg /usr/share/keyrings/jenkins.io.key"
+  register: jenkinskey
+- debug:
+    msg: "{{ jenkinskey }}"
+- name: "Update ubuntu's sources list"
+  shell:
+    cmd: sudo sh -c 'echo deb [signed-by=/usr/share/keyrings/jenkins.gpg] http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  register: updatesourceslist
+- debug:
+    msg: "{{ updatesourceslist }}"
+- name: "Installing Jenkins"
+  no_log: false
+  apt:
+    name: jenkins
+    update_cache: "yes"
+  notify:
+    - "start jenkins"
+- name: Allow all access to tcp port 8080
+  community.general.ufw:
+    rule: allow
+    port: '8080'
+    proto: tcp   
