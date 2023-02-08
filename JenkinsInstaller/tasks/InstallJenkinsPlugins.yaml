@@ -1,11 +1,10 @@
 - name: Ensure that Jenkins service is started
-  service:
+  systemd:
     name: jenkins
-    state: started
-    enabled: True
-- name: Sleep for 60 seconds for Jenkins service to fully initialize
+    state: stopped
+- name: Sleep for 30 seconds for Jenkins service to fully initialize
   ansible.builtin.wait_for:
-    timeout: 60
+    timeout: 30
 - name: Jenkins Skip startUp for MI
   lineinfile:
     dest=/lib/systemd/system/jenkins.service
@@ -13,8 +12,10 @@
     line='Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'    
   register: result_skip_startup_wizard
   no_log: false
+  changed_when: true
   notify:
     - "Restart Jenkins"
+- meta: flush_handlers      
 - name: Sleep for 60 seconds for Jenkins service to fully initialize
   ansible.builtin.wait_for:
     timeout: 60
