@@ -1,4 +1,4 @@
-- name: Ensure that Jenkins service is started
+- name: Ensure that Jenkins service is stopped
   systemd:
     name: jenkins
     state: stopped
@@ -16,9 +16,18 @@
   notify:
     - "Restart Jenkins"
 - meta: flush_handlers      
-- name: Sleep for 60 seconds for Jenkins service to fully initialize
-  ansible.builtin.wait_for:
-    timeout: 60
+- name: Wait for Jenkins to start up
+  uri:
+    url: http://localhost:8080
+    status_code: 200
+    timeout: 5
+  register: jenkins_service_status
+  # Keep trying for 5 mins in 5 sec intervals
+  retries: 60
+  delay: 5
+  until: >
+     'status' in jenkins_service_status and
+     jenkins_service_status['status'] == 200      
 - name: Install ansible plugin on Jenkins
   no_log: false
   jenkins_plugin:
