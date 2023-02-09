@@ -2,9 +2,6 @@
   systemd:
     name: jenkins
     state: stopped
-- name: Sleep for 30 seconds for Jenkins service to fully initialize
-  ansible.builtin.wait_for:
-    timeout: 30
 - name: Jenkins Skip startUp for MI
   lineinfile:
     dest=/lib/systemd/system/jenkins.service
@@ -14,9 +11,10 @@
   no_log: false
   changed_when: true
   notify:
-    - "Restart Jenkins"
+    - "Start Jenkins"
 - meta: flush_handlers      
 - name: Wait for Jenkins to start up
+  no_log: false
   uri:
     url: http://localhost:8080
     status_code: 200

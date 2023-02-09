@@ -26,11 +26,13 @@
     msg: "{{ updatesourceslist }}"
 - name: "Installing Jenkins"
   no_log: false
+  changed_when: true
   apt:
     name: jenkins
     update_cache: "yes"
   notify:
-    - "start jenkins"
+    - "Stop Jenkins"
+- meta: flush_handlers      
 - name: Allow all access to tcp port 8080
   community.general.ufw:
     rule: allow
