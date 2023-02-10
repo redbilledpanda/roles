@@ -3,16 +3,36 @@
     name: jenkins
     state: stopped
 - name: Jenkins Skip startUp for MI
+  no_log: false
   lineinfile:
     dest=/lib/systemd/system/jenkins.service
     regexp='^Environment="JAVA_OPTS=-Djava.awt.headless=true'
     line='Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'    
   register: result_skip_startup_wizard
+- name: "Creating groovy script directory"
+  no_log: false
+  file:
+    path: "{{ JENKINS_HOME }}/init.groovy.d"
+    state: "directory"
+    recurse: yes
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  tags: [ groovy ]
+- name: "copy script to mark init setup as complete"
   no_log: false
   changed_when: true
+  copy:
+    dest: "{{ JENKINS_HOME }}/init.groovy.d/basic-security.groovy"
+    src: "files/basic-security.groovy"
+    owner: jenkins
+    group: jenkins
+    mode: '0664'
   notify:
-    - "Start Jenkins"
+    - 'Start Jenkins'
+  tags: [ groovy ]
 - meta: flush_handlers      
+  tags: [ groovy ]
 - name: Wait for Jenkins to start up
   no_log: false
   uri:

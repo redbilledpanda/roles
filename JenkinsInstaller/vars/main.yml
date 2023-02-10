@@ -1,2 +1,3 @@
 ---
 # vars file for Jenkins
+JENKINS_HOME: "/var/lib/jenkins"
