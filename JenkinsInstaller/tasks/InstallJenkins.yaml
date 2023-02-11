@@ -24,12 +24,15 @@
   register: updatesourceslist
 - debug:
     msg: "{{ updatesourceslist }}"
+- name: "Update apt cache"
+  no_log: false
+  apt:
+    update_cache: "yes"
 - name: "Installing Jenkins"
   no_log: false
   changed_when: true
   apt:
     name: jenkins
-    update_cache: "yes"
   notify:
     - "Stop Jenkins"
 - meta: flush_handlers      
